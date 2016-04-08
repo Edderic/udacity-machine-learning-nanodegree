@@ -12,34 +12,49 @@ class QTable():
         self._gamma = gamma
         self.__initialize_table()
 
-    def alpha(self):
-        return self._alpha
-
-    def gamma(self):
-        return self._gamma
-
-    def __value_at(self, light=None, next_waypoint=None, left=None, oncoming=None, action=None):
+    def get_value_at(self,
+            light=None,
+            left=None,
+            oncoming=None,
+            next_waypoint=None,
+            action=None):
         return self._table[self.__state_action(light=light,
             left=left,
             oncoming=oncoming,
             next_waypoint=next_waypoint,
             action=action)]
 
-    def __set_value_at(self, light=None, next_waypoint=None, left=None, oncoming=None, action=None, new_value=0.0):
+    def set_value_at(self, light=None, next_waypoint=None, left=None, oncoming=None, action=None, new_value=0.0):
         self._table[self.__state_action(light=light,
             left=left,
             oncoming=oncoming,
             next_waypoint=next_waypoint,
             action=action)] = new_value
 
+    def alpha(self):
+        return self._alpha
+
+    def gamma(self):
+        return self._gamma
+
+    def max_q(self, light=None, next_waypoint=None, left=None, oncoming=None):
+        values = []
+        for action in ['forward', 'left', 'right', None]:
+            values.append(self.get_value_at(light=light,
+                    next_waypoint=next_waypoint,
+                    left=left,
+                    oncoming=oncoming,
+                    action=action))
+        return max(values)
+
     def best_action(self, light=None, next_waypoint=None, left=None, oncoming=None):
-        go_to_next_waypoint = self.__value_at(light=light,
+        go_to_next_waypoint = self.get_value_at(light=light,
                 next_waypoint=next_waypoint,
                 left=left,
                 oncoming=oncoming,
                 action=next_waypoint)
 
-        do_nothing = self.__value_at(light=light,
+        do_nothing = self.get_value_at(light=light,
                 next_waypoint=next_waypoint,
                 left=left,
                 oncoming=oncoming,
