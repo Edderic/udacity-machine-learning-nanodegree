@@ -105,3 +105,17 @@ TMZ-SHIFT, and SMOTE-SCHED vs. TMZ-SHIFT. Sometimes, we might get 10 new
 students, but other times, we might get 300 new ones all at once. Thus, I take
 into account number of schedules to be generated as well, see how the
 comparisons change as a function of the number of items to be predicted.
+
+For each of the comparisons stated above, we will have a subpopulation group.
+The subpopulation is the group of schedules that match the timezone and lesson
+frequency of interest.  From that subpopulation, we will divide that into a
+test set and a training set.  From the training set, we will generate new data
+via the methods described. Then we will use some sort of distance metric to
+figure out how far the generated data is from the test set. We will do this
+process repeatedly, at least 10,000 times, and we compare the differences
+between each of the methods with regards to the test set. Tracking the
+differences over many, many iterations would give us confidence intervals that
+would support or invalidate some of the hypotheses I described. Doing this
+experiment would then inform us on which method is best for predicting student
+demand.
+
