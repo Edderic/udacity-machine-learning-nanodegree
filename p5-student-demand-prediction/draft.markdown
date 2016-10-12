@@ -1,121 +1,117 @@
-Capstone Project
-Machine Learning Engineer Nanodegree
-Joe Udacity
-December 31st, 2050
-Definition
 
-(approximately 1 - 2 pages)
-  Project Overview
+TODO:
+
+- What happens if it gets a new timezone that was not well-represented earlier?
+  - What if the distribution is just like the general distribution consisting
+    of all timezones? See next month and next next month
+  - What if... is just random? See next month and next next month
+  - What if it is heavily focused at one section? (9 PM)
+
+    - How much err
+  -
+  - and lots of it?
+  - Compare how each model does to seeing new data.
+  - What happens if the same thing again happens for the subsequent month?
+    - Does error go down by a lot?
+    - Which error
 
 
-  In this section, look to provide a high-level overview of the project in layman’s terms. Questions to ask yourself when writing this section:
-  Has an overview of the project been provided, such as the problem domain, project origin, and related datasets or input data?
-  Has enough background information been given so that an uninformed reader would understand the problem domain and following problem statement?
-  Problem Statement
+Metric should not take into account six
 
-Lingo Live provides customized communication lessons for tech professionals.
-We specialize in helping engineers in multinational tech companies (e.g.
-Facebook, Google, Twitter); we provide our customers, many of whom are
-non-native speakers, a language/communication teacher who knows exactly what
-they need, anytime and anywhere. Breaking down language and communication
-barriers helps them become more effective communicators, and therefore, better
-employees.
+- Ex
 
-It is important for us to make sure that our supply of teachers is able to meet
-student demand. As part of the tech team at Lingo Live, one of my
-responsibilities is to provide accurate forecasts on our capacity to handle
-future students -- do we have enough capacity to handle an influx of new
-students? If so, how much more can we handle? If not, how many more teachers do
-we need to hire, and what times should they be teaching? Underestimating and
-overestimating capacity has serious consequences; not enough teachers means
-that some or many students won't be able to get lessons at times that they
-want. On the other hand, if we hire too many teachers, many of them might not
-get enough lessons, and might have to look at other sources of income to
-supplement the income they get from Lingo Live. Thus, getting accurate
-forecasts of teacher capacity would help our students and teachers stay happy.
+- How does knowing about timezone affect model performance?
+  - Perform ANOVA to determine whether or not one of the groups is really
+    different from the others
 
-The process of analyzing our capacity involves two main stages. First,
-predicting student demand given indirect information (such as timezone of these
-students, which company they are working for, a ballpark number of students
-that are coming in, and the supposed lesson frequency that people will be
-taking).  We would generate a bunch of possible schedules that these new
-students might have, based on current student data. Finally, once we have these
-predicted schedules, we then compare them with current teacher availability to
-see how much we could handle. My focus for this project is only the first stage
--- given timezone and company data, could we generate schedules that are
-representative of the new students?
+- What happens when you perturb the input?
+  - Find the month that it did the worst. Use that sample to generate new data.
+    See how it performs.
 
-In this project, I compare several strategies and evaluate the effectiveness in
-producing representative schedules of potential students: random sampling with
-replacement (RSR), a new variation of Synthetic Minority Oversampling Technique
-tailored to this problem (SMOTE-SCHED), and Timezone Shifting (TMZ-SHIFT).
+- What happens if we run the optimizer for a 1000 iterations?
+  -
+How does your model compare against the Ruby benchmark
 
-Data used in this project is from Lingo Live's production database, anonymized
-to protect users' privacy.
+- Calculate analysis of variance for timezones
 
-  In this section, you will want to clearly define the problem that you are trying to solve, including the strategy (outline of tasks) you will use to achieve the desired solution. You should also thoroughly discuss what the intended solution will be for this problem. Questions to ask yourself when writing this section:
-  Is the problem statement clearly defined? Will the reader understand what you are expecting to solve?
-  Have you thoroughly discussed how you will attempt to solve the problem?
-  Is an anticipated solution clearly defined? Will the reader understand what results you are looking for?
+- How does the model perform when we remove training data from 2014 and up till
+April 2015? (We don't know if certain groups were affected much more than
+others (i.e. not randomly distributed))
 
-In this project, I explore three strategies to address the problem of
-generating schedules that are representative of potential students.  They are
-described below.
+Density bins
 
-One strategy is simple random sampling. Given indirect information (timezone,
-company, etc.), we could randomly pick (with replacement) a subset of current
-students' schedules, and just use those schedules to represent potential
-schedules of new students. I hypothesize that this simple way of generating a
-set of possible student schedules is probably sufficient, if the subpopulation
-we are sampling from has a big enough sample size and is representative of the
-population. However, in cases where we are asked to predict student demand from
-potential students of an underrepresented timezone, using this simple approach
-might be problematic, since it will just create a bunch of clones of members of
-the underrepresented timezone, which is probably a statistically biased sample
-and not as representative of the population of people belonging in that
-timezone.
+- What if errors were not binned by six? What if they were not binned at all?
 
-Another strategy involves creating synthetic data to hopefully address the
-issue of random sampling when sample size is small. It is highly inspired by
-the Synthetic Minority Oversampling Technique (SMOTE), which was originally
-made for classification problems with highly imbalanced datasets *citation*.
-The idea is do some sort of interpolation to synthesize new data that would
-hopefully be more representative of the population. In generating viable
-schedules of underrepresented groups, we randomly pick a schedule, get the
-k-nearest neighbors. Then we pick two of those k-nearest neighbors and
-interpolate between the two schedules, producing a new schedule that is like
-the schedules in the dataset, but not exactly the same. I hypothesize that this
-new variation of SMOTE, tailored for this problem (SMOTE-SCHED), will be better
-than simple random sampling with replacement when sample size is small.
+To figure out scheduling patterns, I decided to use K-Means clustering. Each
+schedule has lesson request features (e.g. 2x lesson schedules have
+\emph{lr1\_start\_time}, \emph{lr1\_weekday}, \emph{lr2\_start\_time}, and
+\emph{lr2\_weekday}). A great visual demonstration of how KMeans algorithm
+works can be found online \cite{kmeans:naftali_harris}. First, I looked into
+\emph{2x} schedules.  After specifying two clusters as the input, it was able
+to split the schedules into morning and evening ones (See Table
+\ref{figtab:2_clusters_of_2x_schedules}). However, the members of each cluster
+looked like they were all over the place, which suggested that more clusters were
+needed. I tried different number of clusters, and 12 seems like a good number
+-- the clustering was much tighter (see Table
+\ref{figtab:12_clusters_of_2x_schedules}), even for 3x schedules (Table
+\ref{figtab:12_clusters_of_3x_schedules}).
 
-Finally, the last strategy I explore in this paper is randomly picking a
-schedule and adjusting by differences in timezone (TMZ-SHIFT). For example,
-let's say we are interested in predicting student demand for people in Eastern
-Standard Time. We randomly pick a schedule -- let's pretend it happened to be
-that it was from Pacific Standard Time, and that person regularly takes lessons
-on Monday, Wednesday, and Friday (MWF) at 6 PM PST. The synthesized schedule
-would then have lessons on MWF at 6 PM EST. The underlying assumption is that
-most people, with regards to scheduling, are really similar. Most people have a
-9-5 job -- they have breakfast, go to work, and go home. They might do lessons
-around the same times as well (such as during lunch time, or after work).
+What I discovered is that most user schedules, on average, take lessons during
+around the same time of day. As one can see, the centroids (in black) of Tables
+\ref{figtab:12_clusters_of_2x_schedules} and
+\ref{figtab:12_clusters_of_3x_schedules} are mostly horizontal. This validates
+the idea that most people are quite habitual with when they take lessons -- such as
+mornings, afternoons, evenings, somewhere between morning and afternoons, etc.
 
-To figure out which method is best for simulating data of potential new
-students, we do a three-way comparison: RSR vs. SMOTE-SCHED, RSR vs.
-TMZ-SHIFT, and SMOTE-SCHED vs. TMZ-SHIFT. Sometimes, we might get 10 new
-students, but other times, we might get 300 new ones all at once. Thus, I take
-into account number of schedules to be generated as well, see how the
-comparisons change as a function of the number of items to be predicted.
+\begin{table}[ht]
+  \centering
+  \begin{tabular}{c@{\quad}cc}
+    & a & b \\
+    1 & \includegraphics[scale=0.4]{img/cluster_0_out_of_2_clusters_2x.png}\fixedlabel{2-2x-1a}{1a}
+    & \includegraphics[scale=0.4]{img/cluster_1_out_of_2_clusters_2x.png}\fixedlabel{2-2x-1b}{1b}
+  \end{tabular}
+  \caption{2 Clusters of 2x Schedules (n=466)}
+  \label{figtab:2_clusters_of_2x_schedules}
+\end{table}
 
-For each of the comparisons stated above, we will have a subpopulation group.
-The subpopulation is the group of schedules that match the timezone and lesson
-frequency of interest.  From that subpopulation, we will divide that into a
-test set and a training set.  From the training set, we will generate new data
-via the methods described. Then we will use some sort of distance metric to
-figure out how far the generated data is from the test set. We will do this
-process repeatedly, at least 10,000 times, and we compare the differences
-between each of the methods with regards to the test set. Tracking the
-differences over many, many iterations would give us confidence intervals that
-would support or invalidate some of the hypotheses I described. Doing this
-experiment would then inform us on which method is best for predicting student
-demand.
+\begin{table}[ht]
+  \centering
+  \begin{tabular}{c@{\quad}ccc}
+    & a & b & c\\
+    1 & \includegraphics[scale=0.25]{img/cluster_0_out_of_12_clusters_2x.png}\fixedlabel{12-2x-1a}{1a}
+    & \includegraphics[scale=0.25]{img/cluster_1_out_of_12_clusters_2x.png}\fixedlabel{12-2x-1b}{1b}
+    & \includegraphics[scale=0.25]{img/cluster_2_out_of_12_clusters_2x.png}\fixedlabel{12-2x-2a}{2a} \\ \\
+    2 & \includegraphics[scale=0.25]{img/cluster_3_out_of_12_clusters_2x.png}\fixedlabel{12-2x-2b}{2b}
+    & \includegraphics[scale=0.25]{img/cluster_4_out_of_12_clusters_2x.png}\fixedlabel{12-2x-3a}{3a}
+    & \includegraphics[scale=0.25]{img/cluster_5_out_of_12_clusters_2x.png}\fixedlabel{12-2x-3b}{3b} \\ \\
+    3 & \includegraphics[scale=0.25]{img/cluster_6_out_of_12_clusters_2x.png}\fixedlabel{12-2x-4a}{4a}
+    & \includegraphics[scale=0.25]{img/cluster_7_out_of_12_clusters_2x.png}\fixedlabel{12-2x-4b}{4b}
+    & \includegraphics[scale=0.25]{img/cluster_8_out_of_12_clusters_2x.png}\fixedlabel{12-2x-5a}{5a} \\ \\
+    4 & \includegraphics[scale=0.25]{img/cluster_9_out_of_12_clusters_2x.png}\fixedlabel{12-2x-5b}{5b}
+     & \includegraphics[scale=0.25]{img/cluster_10_out_of_12_clusters_2x.png}\fixedlabel{12-2x-6a}{6a}
+    & \includegraphics[scale=0.25]{img/cluster_11_out_of_12_clusters_2x.png}\fixedlabel{12-2x-6b}{6b}
+  \end{tabular}
+  \caption{12 Clusters of 2x Schedules (n=466)}
+  \label{figtab:12_clusters_of_2x_schedules}
+\end{table}
 
+\begin{table}[ht]
+  \centering
+  \begin{tabular}{c@{\quad}ccc}
+    & a & b & c\\
+    1 & \includegraphics[scale=0.25]{img/cluster_0_out_of_12_clusters_3x.png}\fixedlabel{block1a}{1a}
+    & \includegraphics[scale=0.25]{img/cluster_1_out_of_12_clusters_3x.png}\fixedlabel{block1b}{1b}
+    & \includegraphics[scale=0.25]{img/cluster_2_out_of_12_clusters_3x.png}\fixedlabel{block2a}{2a} \\ \\
+    2 & \includegraphics[scale=0.25]{img/cluster_3_out_of_12_clusters_3x.png}\fixedlabel{block2b}{2b}
+    & \includegraphics[scale=0.25]{img/cluster_4_out_of_12_clusters_3x.png}\fixedlabel{block3a}{3a}
+    & \includegraphics[scale=0.25]{img/cluster_5_out_of_12_clusters_3x.png}\fixedlabel{block3b}{3b} \\ \\
+    3 & \includegraphics[scale=0.25]{img/cluster_6_out_of_12_clusters_3x.png}\fixedlabel{block4a}{4a}
+    & \includegraphics[scale=0.25]{img/cluster_7_out_of_12_clusters_3x.png}\fixedlabel{block4b}{4b}
+    & \includegraphics[scale=0.25]{img/cluster_8_out_of_12_clusters_3x.png}\fixedlabel{block5a}{5a} \\ \\
+    4 & \includegraphics[scale=0.25]{img/cluster_9_out_of_12_clusters_3x.png}\fixedlabel{block5b}{5b}
+     & \includegraphics[scale=0.25]{img/cluster_10_out_of_12_clusters_3x.png}\fixedlabel{block6a}{6a}
+    & \includegraphics[scale=0.25]{img/cluster_11_out_of_12_clusters_3x.png}\fixedlabel{block6b}{6b}
+  \end{tabular}
+  \caption{12 Clusters of 3x Schedules (n=427)}
+  \label{figtab:12_clusters_of_3x_schedules}
+\end{table}
